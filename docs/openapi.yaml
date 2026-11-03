@@ -253,6 +253,53 @@
         description: Admin only. The creating admin can then add officers as members.
         requestBody:
           required: true
+              $ref: '#/components/schemas/MemberInput'
+            example:
+              userId: 21
+              memberRole: tutor
+      responses:
+        '201':
+          description: Member added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationMember'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /organizations/{orgId}/members/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/OrgId'
+      - $ref: '#/components/parameters/UserId'
+    delete:
+      tags: [Organizations]
+      summary: Remove a member from an organization
+      responses:
+        '204':
+          description: Member removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /organizations/{orgId}/summary:
+    parameters:
+      - $ref: '#/components/parameters/OrgId'
+    get:
+      tags: [Organizations]
+      summary: Organizational Tutoring Overview
+      description: Track your community impact in real time with live counts of pending requests, finished sessions, and logged volunteer hours.
+      responses:
+        '200':
+          description: Summary numbers for the organization
           content:
             application/json:
               schema:
@@ -332,6 +379,66 @@
           '404':
             $ref: '#/components/responses/NotFound'
     /organizations/{orgId}/members:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TutorSubject'
+              example:
+                - id: 7
+                  tutorId: 21
+                  subject: Automata Theory
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Tutor Subjects]
+      summary: Add a subject a tutor can teach
+      description: Tutors and instructors can add subjects to their own profile.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TutorSubjectInput'
+            example:
+              subject: Automata Theory
+      responses:
+        '201':
+          description: Subject added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TutorSubject'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /tutor-subjects/{subjectId}:
+    parameters:
+      - name: subjectId
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      tags: [Tutor Subjects]
+      summary: Remove a subject from a tutor profile
+      responses:
+        '204':
+          description: Subject removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /requests:
+    get:
+      tags: [Requests]
+      summary: Lists help requests
+      description: Tutors and instructors browse requests here. Use the panel and organizationId filters to show only what belongs to a given panel.
       parameters:
         - $ref: '#/components/parameters/OrgId'
       get:
@@ -439,6 +546,75 @@
               type: integer
           - name: subject
             in: query
+                data:
+                  - id: 40
+                    studentId: 12
+                    subject: Networking 1
+                    topic: Introduction to Networks
+                    preferredSchedule: Weekdays after 3 PM
+                    mode: in_person
+                    panel: peer
+                    organizationId: null
+                    status: open
+                    createdAt: '2026-11-03T10:00:00Z'
+                page: 1
+                total: 1
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Requests]
+      summary: Post a help request
+      description: Students post a request for one of the three panels. Organization requests need an organizationId.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelpRequestInput'
+            example:
+              subject: Networking 1
+              topic: Introduction to Networks
+              preferredSchedule: Weekdays after 3 PM
+              mode: in_person
+              panel: peer
+      responses:
+        '201':
+          description: Request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpRequest'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /requests/{requestId}:
+    parameters:
+      - $ref: '#/components/parameters/RequestId'
+    get:
+      tags: [Requests]
+      summary: Get a help request
+      responses:
+        '200':
+          description: The help request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Requests]
+      summary: Edit a help request
+      description: Only the student who posted it can edit, and only while it is still open.
+      requestBody:
+        required: true
+        content:
+          application/json:
             schema:
               type: string
         responses:
@@ -1058,6 +1234,39 @@
           '404':
             $ref: '#/components/responses/NotFound'
     /feedback/{feedbackId}:
+                $ref: '#/components/schemas/Feedback'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Feedback]
+      summary: Delete feedback
+      description: The writer or an admin can delete it.
+      responses:
+        '204':
+          description: Feedback deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /tutors/{tutorId}/hours:
+    parameters:
+      - name: tutorId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Hours]
+      summary: Get volunteer hours of a tutor
+      description: Adds up the duration of completed sessions. Filter by date range or organization.
       parameters:
         - $ref: '#/components/parameters/FeedbackId'
       get:
