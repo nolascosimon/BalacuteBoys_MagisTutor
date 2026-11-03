@@ -505,7 +505,7 @@ paths:
   /requests:
     get:
       tags: [Requests]
-      summary: List help requests
+      summary: Lists help requests
       description: Tutors and instructors browse requests here. Use the panel and organizationId filters to show only what belongs to a given panel.
       parameters:
         - name: subject
@@ -556,8 +556,8 @@ paths:
                 data:
                   - id: 40
                     studentId: 12
-                    subject: Automata Theory
-                    topic: Converting NFA to DFA
+                    subject: Networking 1
+                    topic: Introduction to Networks
                     preferredSchedule: Weekdays after 3 PM
                     mode: in_person
                     panel: peer
@@ -579,8 +579,8 @@ paths:
             schema:
               $ref: '#/components/schemas/HelpRequestInput'
             example:
-              subject: Automata Theory
-              topic: Converting NFA to DFA
+              subject: Networking 1
+              topic: Introduction to Networks
               preferredSchedule: Weekdays after 3 PM
               mode: in_person
               panel: peer
