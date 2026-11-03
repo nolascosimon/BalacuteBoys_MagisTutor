@@ -406,8 +406,8 @@ paths:
       - $ref: '#/components/parameters/OrgId'
     get:
       tags: [Organizations]
-      summary: Get the tutoring summary of an organization
-      description: Totals shown on the organization panel, such as open requests, completed sessions, and volunteer hours.
+      summary: Organizational Tutoring Overview
+      description: Track your community impact in real time with live counts of pending requests, finished sessions, and logged volunteer hours.
       responses:
         '200':
           description: Summary numbers for the organization
@@ -986,7 +986,7 @@ paths:
     get:
       tags: [Hours]
       summary: Get volunteer hours of a tutor
-      description: Adds up the duration of completed sessions. Can be limited to a date range or to one organization.
+      description: Adds up the duration of completed sessions. Filter by date range or organization.
       parameters:
         - name: from
           in: query
