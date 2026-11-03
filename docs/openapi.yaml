@@ -1,1477 +1,1637 @@
-openapi: 3.0.3
-info:
-  title: MagisTutor API
-  version: 0.1.0
-  description: |
-    REST API for MagisTutor, a volunteer tutoring platform for Xavier University - Ateneo de Cagayan.
-    It connects students who need academic help with peer tutors (upper-year volunteers), instructors,
-    and student organizations. Every request and session belongs to one of three panels:
-    peer-to-peer, instructor, or organization.
+  openapi: 3.0.3
+  info:
+    title: MagisTutor API
+    version: 0.1.0
+    description: |
+      REST API for MagisTutor, a volunteer tutoring platform for Xavier University - Ateneo de Cagayan.
+      It connects students who need academic help with peer tutors (upper-year volunteers), instructors,
+      and student organizations. Every request and session belongs to one of three panels:
+      peer-to-peer, instructor, or organization.
 
-    Users sign up with their XU email. Protected routes need a bearer token from the login route.
-    This file documents our own API only. EmailJS and Jitsi Meet are called by the frontend and are not described here.
-  contact:
-    name: Balacute Boys
-servers:
-  - url: http://localhost:5000/api/v1
-    description: Local development server
-tags:
-  - name: Auth
-    description: Registration and login
-  - name: Users
-    description: User accounts and roles
-  - name: Organizations
-    description: Student organizations and instructor groups that run their own tutoring panel
-  - name: Tutor Subjects
-    description: Subjects a tutor or instructor can teach
-  - name: Requests
-    description: Help requests posted by students
-  - name: Sessions
-    description: Session offers, bookings, and confirmation
-  - name: Feedback
-    description: Ratings and comments after a session
-  - name: Hours
-    description: Volunteer hours of tutors
-security:
-  - bearerAuth: []
-paths:
-  /auth/register:
-    post:
-      tags: [Auth]
-      summary: Register a new account
-      description: Creates an account using an XU email. New accounts start with the student role unless a tutor or instructor role is requested, and an admin can change roles later.
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RegisterInput'
-            example:
-              name: Juan Dela Cruz
-              email: 2022-12345@xu.edu.ph
-              password: Sample123!
-              role: student
-              course: BS Computer Science
-              yearLevel: 2
-      responses:
-        '201':
-          description: Account created
+      Users sign up with their XU email. Protected routes need a bearer token from the login route.
+      This file documents our own API only. EmailJS and Jitsi Meet are called by the frontend and are not described here.
+    contact:
+      name: Balacute Boys
+  servers:
+    - url: http://localhost:5000/api/v1
+      description: Local development server
+  tags:
+    - name: Auth
+      description: Registration and login
+    - name: Users
+      description: User accounts and roles
+    - name: Organizations
+      description: Student organizations and instructor groups that run their own tutoring panel
+    - name: Tutor Subjects
+      description: Subjects a tutor or instructor can teach
+    - name: Requests
+      description: Help requests posted by students
+    - name: Sessions
+      description: Session offers, bookings, and confirmation
+    - name: Feedback
+      description: Ratings and comments after a session
+    - name: Hours
+      description: Volunteer hours of tutors
+  security:
+    - bearerAuth: []
+  paths:
+    /auth/register:
+      post:
+        tags: [Auth]
+        summary: Register a new account
+        description: Creates an account using an XU email. New accounts start with the student role unless a tutor or instructor role is requested, and an admin can change roles later.
+        security: []
+        requestBody:
+          required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/RegisterInput'
               example:
-                id: 12
                 name: Juan Dela Cruz
                 email: 2022-12345@xu.edu.ph
+                password: Sample123!
                 role: student
                 course: BS Computer Science
                 yearLevel: 2
-                createdAt: '2026-11-03T08:30:00Z'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Conflict'
-  /auth/login:
-    post:
-      tags: [Auth]
-      summary: Log in and get an access token
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginInput'
-            example:
-              email: 2022-12345@xu.edu.ph
-              password: Sample123!
-      responses:
-        '200':
-          description: Login successful
+        responses:
+          '201':
+            description: Account created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/User'
+                example:
+                  id: 12
+                  name: Juan Dela Cruz
+                  email: 2022-12345@xu.edu.ph
+                  role: student
+                  course: BS Computer Science
+                  yearLevel: 2
+                  createdAt: '2026-11-03T08:30:00Z'
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '409':
+            $ref: '#/components/responses/Conflict'
+    /auth/login:
+      post:
+        tags: [Auth]
+        summary: Log in and get an access token
+        security: []
+        requestBody:
+          required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthToken'
+                $ref: '#/components/schemas/LoginInput'
               example:
-                accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.sample.token
-                tokenType: Bearer
-                expiresIn: 3600
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-  /users:
-    get:
-      tags: [Users]
-      summary: List users
-      description: Admin only. Supports filtering by role and searching by name or email.
-      parameters:
-        - name: role
-          in: query
-          schema:
-            $ref: '#/components/schemas/Role'
-        - name: search
-          in: query
-          description: Matches part of a name or email
-          schema:
-            type: string
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Limit'
-      responses:
-        '200':
-          description: List of users
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
+                email: 2022-12345@xu.edu.ph
+                password: Sample123!
+        responses:
+          '200':
+            description: Login successful
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AuthToken'
+                example:
+                  accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.sample.token
+                  tokenType: Bearer
+                  expiresIn: 3600
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+    /users:
+      get:
+        tags: [Users]
+        summary: List users
+        description: Admin only. Supports filtering by role and searching by name or email.
+        parameters:
+          - name: role
+            in: query
+            schema:
+              $ref: '#/components/schemas/Role'
+          - name: search
+            in: query
+            description: Matches part of a name or email
+            schema:
+              type: string
+          - $ref: '#/components/parameters/Page'
+          - $ref: '#/components/parameters/Limit'
+        responses:
+          '200':
+            description: List of users
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/User'
+                    page:
+                      type: integer
+                    total:
+                      type: integer
+                example:
                   data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/User'
-                  page:
-                    type: integer
-                  total:
-                    type: integer
-              example:
-                data:
-                  - id: 12
-                    name: Juan Dela Cruz
-                    email: 2022-12345@xu.edu.ph
-                    role: student
-                    course: BS Computer Science
-                    yearLevel: 2
-                    createdAt: '2026-11-03T08:30:00Z'
-                page: 1
-                total: 1
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-  /users/{userId}:
-    parameters:
-      - $ref: '#/components/parameters/UserId'
-    get:
-      tags: [Users]
-      summary: Get a user
-      responses:
-        '200':
-          description: The user
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    put:
-      tags: [Users]
-      summary: Update a user
-      description: A user can edit their own profile. Only an admin can change the role.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserUpdate'
-            example:
-              name: Juan P. Dela Cruz
-              course: BS Computer Science
-              yearLevel: 3
-      responses:
-        '200':
-          description: Updated user
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    delete:
-      tags: [Users]
-      summary: Delete a user
-      description: Admin only. Removes the account.
-      responses:
-        '204':
-          description: User deleted
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /organizations:
-    get:
-      tags: [Organizations]
-      summary: List organizations
+                    - id: 12
+                      name: Juan Dela Cruz
+                      email: 2022-12345@xu.edu.ph
+                      role: student
+                      course: BS Computer Science
+                      yearLevel: 2
+                      createdAt: '2026-11-03T08:30:00Z'
+                  page: 1
+                  total: 1
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+    /users/{userId}:
       parameters:
-        - name: type
-          in: query
-          schema:
-            $ref: '#/components/schemas/OrganizationType'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Limit'
-      responses:
-        '200':
-          description: List of organizations
+        - $ref: '#/components/parameters/UserId'
+      get:
+        tags: [Users]
+        summary: Get a user
+        responses:
+          '200':
+            description: The user
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/User'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '404':
+            $ref: '#/components/responses/NotFound'
+      put:
+        tags: [Users]
+        summary: Update a user
+        description: A user can edit their own profile. Only an admin can change the role.
+        requestBody:
+          required: true
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Organization'
-                  page:
-                    type: integer
-                  total:
-                    type: integer
+                $ref: '#/components/schemas/UserUpdate'
               example:
-                data:
-                  - id: 3
-                    name: XU Computer Science Society
-                    type: student_org
-                    description: Peer tutoring for CS and IT subjects
-                    createdAt: '2026-11-03T09:00:00Z'
-                page: 1
-                total: 1
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-    post:
-      tags: [Organizations]
-      summary: Create an organization
-      description: Admin only. The creating admin can then add officers as members.
-      requestBody:
-        required: true
-        content:
-          application/json:
+                name: Juan P. Dela Cruz
+                course: BS Computer Science
+                yearLevel: 3
+        responses:
+          '200':
+            description: Updated user
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/User'
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+      delete:
+        tags: [Users]
+        summary: Delete a user
+        description: Admin only. Removes the account.
+        responses:
+          '204':
+            description: User deleted
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+    /organizations:
+      get:
+        tags: [Organizations]
+        summary: List organizations
+        parameters:
+          - name: type
+            in: query
             schema:
-              $ref: '#/components/schemas/OrganizationInput'
-            example:
-              name: XU Computer Science Society
-              type: student_org
-              description: Peer tutoring for CS and IT subjects
-      responses:
-        '201':
-          description: Organization created
+              $ref: '#/components/schemas/OrganizationType'
+          - $ref: '#/components/parameters/Page'
+          - $ref: '#/components/parameters/Limit'
+        responses:
+          '200':
+            description: List of organizations
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Organization'
+                    page:
+                      type: integer
+                    total:
+                      type: integer
+                example:
+                  data:
+                    - id: 3
+                      name: XU Computer Science Society
+                      type: student_org
+                      description: Peer tutoring for CS and IT subjects
+                      createdAt: '2026-11-03T09:00:00Z'
+                  page: 1
+                  total: 1
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+      post:
+        tags: [Organizations]
+        summary: Create an organization
+        description: Admin only. The creating admin can then add officers as members.
+        requestBody:
+          required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Organization'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Conflict'
-  /organizations/{orgId}:
-    parameters:
-      - $ref: '#/components/parameters/OrgId'
-    get:
-      tags: [Organizations]
-      summary: Get an organization
-      responses:
-        '200':
-          description: The organization
+                $ref: '#/components/schemas/OrganizationInput'
+              example:
+                name: XU Computer Science Society
+                type: student_org
+                description: Peer tutoring for CS and IT subjects
+        responses:
+          '201':
+            description: Organization created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Organization'
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '409':
+            $ref: '#/components/responses/Conflict'
+    /organizations/{orgId}:
+      parameters:
+        - $ref: '#/components/parameters/OrgId'
+      get:
+        tags: [Organizations]
+        summary: Get an organization
+        responses:
+          '200':
+            description: The organization
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Organization'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '404':
+            $ref: '#/components/responses/NotFound'
+      put:
+        tags: [Organizations]
+        summary: Update an organization
+        description: Allowed for admins and officers of that organization.
+        requestBody:
+          required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Organization'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    put:
-      tags: [Organizations]
-      summary: Update an organization
-      description: Allowed for admins and officers of that organization.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrganizationInput'
-      responses:
-        '200':
-          description: Updated organization
+                $ref: '#/components/schemas/OrganizationInput'
+        responses:
+          '200':
+            description: Updated organization
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Organization'
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+      delete:
+        tags: [Organizations]
+        summary: Delete an organization
+        description: Admin only.
+        responses:
+          '204':
+            description: Organization deleted
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+    /organizations/{orgId}/members:
+      parameters:
+        - $ref: '#/components/parameters/OrgId'
+      get:
+        tags: [Organizations]
+        summary: List members of an organization
+        responses:
+          '200':
+            description: Members of the organization
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/OrganizationMember'
+                example:
+                  - userId: 21
+                    name: Maria Santos
+                    memberRole: officer
+                    joinedAt: '2026-11-03T09:15:00Z'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '404':
+            $ref: '#/components/responses/NotFound'
+      post:
+        tags: [Organizations]
+        summary: Add a member to an organization
+        description: Allowed for admins and officers of that organization.
+        requestBody:
+          required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Organization'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    delete:
-      tags: [Organizations]
-      summary: Delete an organization
-      description: Admin only.
-      responses:
-        '204':
-          description: Organization deleted
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /organizations/{orgId}/members:
-    parameters:
-      - $ref: '#/components/parameters/OrgId'
-    get:
-      tags: [Organizations]
-      summary: List members of an organization
-      responses:
-        '200':
-          description: Members of the organization
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
+                $ref: '#/components/schemas/MemberInput'
+              example:
+                userId: 21
+                memberRole: tutor
+        responses:
+          '201':
+            description: Member added
+            content:
+              application/json:
+                schema:
                   $ref: '#/components/schemas/OrganizationMember'
-              example:
-                - userId: 21
-                  name: Maria Santos
-                  memberRole: officer
-                  joinedAt: '2026-11-03T09:15:00Z'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    post:
-      tags: [Organizations]
-      summary: Add a member to an organization
-      description: Allowed for admins and officers of that organization.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MemberInput'
-            example:
-              userId: 21
-              memberRole: tutor
-      responses:
-        '201':
-          description: Member added
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OrganizationMember'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-  /organizations/{orgId}/members/{userId}:
-    parameters:
-      - $ref: '#/components/parameters/OrgId'
-      - $ref: '#/components/parameters/UserId'
-    delete:
-      tags: [Organizations]
-      summary: Remove a member from an organization
-      responses:
-        '204':
-          description: Member removed
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /organizations/{orgId}/summary:
-    parameters:
-      - $ref: '#/components/parameters/OrgId'
-    get:
-      tags: [Organizations]
-      summary: Get the tutoring summary of an organization
-      description: Totals shown on the organization panel, such as open requests, completed sessions, and volunteer hours.
-      responses:
-        '200':
-          description: Summary numbers for the organization
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OrganizationSummary'
-              example:
-                organizationId: 3
-                openRequests: 5
-                completedSessions: 18
-                totalVolunteerHours: 27.5
-                activeTutors: 6
-                averageRating: 4.6
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /tutor-subjects:
-    get:
-      tags: [Tutor Subjects]
-      summary: List tutor subjects
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+          '409':
+            $ref: '#/components/responses/Conflict'
+    /organizations/{orgId}/members/{userId}:
       parameters:
-        - name: tutorId
-          in: query
+        - $ref: '#/components/parameters/OrgId'
+        - $ref: '#/components/parameters/UserId'
+      delete:
+        tags: [Organizations]
+        summary: Remove a member from an organization
+        responses:
+          '204':
+            description: Member removed
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+    /organizations/{orgId}/summary:
+      parameters:
+        - $ref: '#/components/parameters/OrgId'
+      get:
+        tags: [Organizations]
+        summary: Get the tutoring summary of an organization
+        description: Totals shown on the organization panel, such as open requests, completed sessions, and volunteer hours.
+        responses:
+          '200':
+            description: Summary numbers for the organization
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/OrganizationSummary'
+                example:
+                  organizationId: 3
+                  openRequests: 5
+                  completedSessions: 18
+                  totalVolunteerHours: 27.5
+                  activeTutors: 6
+                  averageRating: 4.6
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+    /tutor-subjects:
+      get:
+        tags: [Tutor Subjects]
+        summary: List tutor subjects
+        parameters:
+          - name: tutorId
+            in: query
+            schema:
+              type: integer
+          - name: subject
+            in: query
+            schema:
+              type: string
+        responses:
+          '200':
+            description: List of tutor subjects
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TutorSubject'
+                example:
+                  - id: 7
+                    tutorId: 21
+                    subject: Automata Theory
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+      post:
+        tags: [Tutor Subjects]
+        summary: Add a subject a tutor can teach
+        description: Tutors and instructors can add subjects to their own profile.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TutorSubjectInput'
+              example:
+                subject: Automata Theory
+        responses:
+          '201':
+            description: Subject added
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/TutorSubject'
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '409':
+            $ref: '#/components/responses/Conflict'
+    /tutor-subjects/{subjectId}:
+      parameters:
+        - name: subjectId
+          in: path
+          required: true
           schema:
             type: integer
-        - name: subject
-          in: query
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of tutor subjects
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TutorSubject'
-              example:
-                - id: 7
-                  tutorId: 21
-                  subject: Automata Theory
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-    post:
-      tags: [Tutor Subjects]
-      summary: Add a subject a tutor can teach
-      description: Tutors and instructors can add subjects to their own profile.
-      requestBody:
-        required: true
-        content:
-          application/json:
+      delete:
+        tags: [Tutor Subjects]
+        summary: Remove a subject from a tutor profile
+        responses:
+          '204':
+            description: Subject removed
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+    /requests:
+      get:
+        tags: [Requests]
+        summary: List help requests
+        description: Tutors and instructors browse requests here. Use the panel and organizationId filters to show only what belongs to a given panel.
+        parameters:
+          - name: subject
+            in: query
             schema:
-              $ref: '#/components/schemas/TutorSubjectInput'
-            example:
-              subject: Automata Theory
-      responses:
-        '201':
-          description: Subject added
+              type: string
+          - name: yearLevel
+            in: query
+            schema:
+              type: integer
+              minimum: 1
+              maximum: 5
+          - name: status
+            in: query
+            schema:
+              $ref: '#/components/schemas/RequestStatus'
+          - name: panel
+            in: query
+            schema:
+              $ref: '#/components/schemas/Panel'
+          - name: organizationId
+            in: query
+            schema:
+              type: integer
+          - name: studentId
+            in: query
+            schema:
+              type: integer
+          - $ref: '#/components/parameters/Page'
+          - $ref: '#/components/parameters/Limit'
+        responses:
+          '200':
+            description: List of help requests
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/HelpRequest'
+                    page:
+                      type: integer
+                    total:
+                      type: integer
+                example:
+                  data:
+                    - id: 40
+                      studentId: 12
+                      subject: Automata Theory
+                      topic: Converting NFA to DFA
+                      preferredSchedule: Weekdays after 3 PM
+                      mode: in_person
+                      panel: peer
+                      organizationId: null
+                      status: open
+                      createdAt: '2026-11-03T10:00:00Z'
+                  page: 1
+                  total: 1
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+      post:
+        tags: [Requests]
+        summary: Post a help request
+        description: Students post a request for one of the three panels. Organization requests need an organizationId.
+        requestBody:
+          required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TutorSubject'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Conflict'
-  /tutor-subjects/{subjectId}:
+                $ref: '#/components/schemas/HelpRequestInput'
+              example:
+                subject: Automata Theory
+                topic: Converting NFA to DFA
+                preferredSchedule: Weekdays after 3 PM
+                mode: in_person
+                panel: peer
+        responses:
+          '201':
+            description: Request created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HelpRequest'
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+    /requests/{requestId}:
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      get:
+        tags: [Requests]
+        summary: Get a help request
+        responses:
+          '200':
+            description: The help request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HelpRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '404':
+            $ref: '#/components/responses/NotFound'
+      put:
+        tags: [Requests]
+        summary: Edit a help request
+        description: Only the student who posted it can edit, and only while it is still open.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpRequestInput'
+        responses:
+          '200':
+            description: Updated request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/HelpRequest'
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+          '409':
+            $ref: '#/components/responses/Conflict'
+      delete:
+        tags: [Requests]
+        summary: Delete a help request
+        description: The student who posted it or an admin can delete it.
+        responses:
+          '204':
+            description: Request deleted
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+    /sessions:
+      get:
+        tags: [Sessions]
+        summary: List sessions
+        description: Returns tutoring sessions, which can be narrowed down by request, tutor, or status.
+        parameters:
+          - name: requestId
+            in: query
+            description: Only sessions linked to this help request
+            schema:
+              type: integer
+          - name: tutorId
+            in: query
+            description: Only sessions handled by this tutor
+            schema:
+              type: integer
+          - name: status
+            in: query
+            description: Only sessions in this status
+            schema:
+              $ref: '#/components/schemas/SessionStatus'
+          - $ref: '#/components/parameters/Page'
+          - $ref: '#/components/parameters/Limit'
+        responses:
+          '200':
+            description: A page of sessions
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Session'
+                    page:
+                      type: integer
+                    total:
+                      type: integer
+                example:
+                  data:
+                    - id: 88
+                      requestId: 40
+                      tutorId: 21
+                      startTime: '2026-11-06T16:00:00+08:00'
+                      durationMinutes: 45
+                      mode: in_person
+                      place: Main library reading area
+                      meetingLink: null
+                      status: offered
+                      studentConfirmed: false
+                      tutorConfirmed: false
+                  page: 1
+                  total: 1
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+      post:
+        tags: [Sessions]
+        summary: Offer a time slot for a help request
+        description: A tutor or instructor proposes a schedule for an open help request. The student who posted the request can then accept or ignore the offer.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionOfferInput'
+              example:
+                requestId: 40
+                startTime: '2026-11-06T16:00:00+08:00'
+                durationMinutes: 45
+                mode: in_person
+                place: Main library reading area
+        responses:
+          '201':
+            description: The offer was created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Session'
+                example:
+                  id: 88
+                  requestId: 40
+                  tutorId: 21
+                  startTime: '2026-11-06T16:00:00+08:00'
+                  durationMinutes: 45
+                  mode: in_person
+                  place: Main library reading area
+                  meetingLink: null
+                  status: offered
+                  studentConfirmed: false
+                  tutorConfirmed: false
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+          '409':
+            $ref: '#/components/responses/Conflict'
+    /sessions/{sessionId}:
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      get:
+        tags: [Sessions]
+        summary: Get one session
+        description: Returns the details of a single session, including who has confirmed it.
+        responses:
+          '200':
+            description: The requested session
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Session'
+                example:
+                  id: 88
+                  requestId: 40
+                  tutorId: 21
+                  startTime: '2026-11-06T16:00:00+08:00'
+                  durationMinutes: 45
+                  mode: in_person
+                  place: Main library reading area
+                  meetingLink: null
+                  status: accepted
+                  studentConfirmed: false
+                  tutorConfirmed: false
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '404':
+            $ref: '#/components/responses/NotFound'
+      put:
+        tags: [Sessions]
+        summary: Change the schedule or details of a session
+        description: The tutor can freely edit an offer that has not been accepted. After acceptance, either side can propose a new schedule and the other side must agree again.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionUpdate'
+              example:
+                startTime: '2026-11-07T10:00:00+08:00'
+                durationMinutes: 60
+                mode: online
+                meetingLink: https://meet.jit.si/magistutor-88
+        responses:
+          '200':
+            description: The session after the change
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Session'
+                example:
+                  id: 88
+                  requestId: 40
+                  tutorId: 21
+                  startTime: '2026-11-07T10:00:00+08:00'
+                  durationMinutes: 60
+                  mode: online
+                  place: null
+                  meetingLink: https://meet.jit.si/magistutor-88
+                  status: offered
+                  studentConfirmed: false
+                  tutorConfirmed: false
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+          '409':
+            $ref: '#/components/responses/Conflict'
+      delete:
+        tags: [Sessions]
+        summary: Cancel a session
+        description: The student or the tutor can cancel any session that has not been completed yet.
+        responses:
+          '204':
+            description: The session was cancelled
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+          '409':
+            $ref: '#/components/responses/Conflict'
+    /sessions/{sessionId}/accept:
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      patch:
+        tags: [Sessions]
+        summary: Accept a session offer
+        description: Only the student who posted the request can do this. The chosen offer becomes accepted, the other offers for the same request are cancelled, and the request is marked as matched.
+        responses:
+          '200':
+            description: The offer was accepted
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Session'
+                example:
+                  id: 88
+                  requestId: 40
+                  tutorId: 21
+                  startTime: '2026-11-06T16:00:00+08:00'
+                  durationMinutes: 45
+                  mode: in_person
+                  place: Main library reading area
+                  meetingLink: null
+                  status: accepted
+                  studentConfirmed: false
+                  tutorConfirmed: false
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+          '409':
+            $ref: '#/components/responses/Conflict'
+    /sessions/{sessionId}/confirm:
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      patch:
+        tags: [Sessions]
+        summary: Confirm that the session took place
+        description: The student and the tutor each call this once. After both have confirmed, the session is marked completed and its length is counted toward the tutor's volunteer hours.
+        responses:
+          '200':
+            description: The confirmation was recorded
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Session'
+                example:
+                  id: 88
+                  requestId: 40
+                  tutorId: 21
+                  startTime: '2026-11-06T16:00:00+08:00'
+                  durationMinutes: 45
+                  mode: in_person
+                  place: Main library reading area
+                  meetingLink: null
+                  status: completed
+                  studentConfirmed: true
+                  tutorConfirmed: true
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+          '409':
+            $ref: '#/components/responses/Conflict'
+    /feedback:
+      get:
+        tags: [Feedback]
+        summary: List feedback
+        description: Returns ratings and comments. Use sessionId to see the feedback of one session, or tutorId to see everything a tutor has received.
+        parameters:
+          - name: sessionId
+            in: query
+            description: Only feedback for this session
+            schema:
+              type: integer
+          - name: tutorId
+            in: query
+            description: Only feedback for sessions taught by this tutor
+            schema:
+              type: integer
+        responses:
+          '200':
+            description: The matching feedback entries
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Feedback'
+                example:
+                  - id: 15
+                    sessionId: 88
+                    raterId: 12
+                    rating: 5
+                    comment: Very patient and made the topic easy to follow.
+                    createdAt: '2026-11-06T17:00:00Z'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+      post:
+        tags: [Feedback]
+        summary: Submit feedback after a completed session
+        description: Lets the student rate the tutor once the session is completed. Each person can leave only one feedback entry per session.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackInput'
+              example:
+                sessionId: 88
+                rating: 5
+                comment: Very patient and made the topic easy to follow.
+        responses:
+          '201':
+            description: The feedback was saved
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Feedback'
+                example:
+                  id: 15
+                  sessionId: 88
+                  raterId: 12
+                  rating: 5
+                  comment: Very patient and made the topic easy to follow.
+                  createdAt: '2026-11-06T17:00:00Z'
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+          '409':
+            $ref: '#/components/responses/Conflict'
+    /feedback/{feedbackId}:
+      parameters:
+        - $ref: '#/components/parameters/FeedbackId'
+      get:
+        tags: [Feedback]
+        summary: Get one feedback entry
+        description: Returns a single rating and comment by its ID.
+        responses:
+          '200':
+            description: The requested feedback
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Feedback'
+                example:
+                  id: 15
+                  sessionId: 88
+                  raterId: 12
+                  rating: 5
+                  comment: Very patient and made the topic easy to follow.
+                  createdAt: '2026-11-06T17:00:00Z'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '404':
+            $ref: '#/components/responses/NotFound'
+      put:
+        tags: [Feedback]
+        summary: Edit feedback
+        description: Only the person who wrote the feedback can change the rating or comment.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackUpdate'
+              example:
+                rating: 4
+                comment: Helpful session, but we ran out of time near the end.
+        responses:
+          '200':
+            description: The feedback after the change
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Feedback'
+                example:
+                  id: 15
+                  sessionId: 88
+                  raterId: 12
+                  rating: 4
+                  comment: Helpful session, but we ran out of time near the end.
+                  createdAt: '2026-11-06T17:00:00Z'
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+      delete:
+        tags: [Feedback]
+        summary: Delete feedback
+        description: The person who wrote it, or an admin, can remove the entry.
+        responses:
+          '204':
+            description: The feedback was deleted
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+    /feedback/{feedbackId}:
+      parameters:
+        - $ref: '#/components/parameters/FeedbackId'
+      get:
+        tags: [Feedback]
+        summary: Get one feedback entry
+        responses:
+          '200':
+            description: The feedback
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Feedback'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '404':
+            $ref: '#/components/responses/NotFound'
+      put:
+        tags: [Feedback]
+        summary: Edit feedback
+        description: Only the person who wrote it can edit.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackUpdate'
+              example:
+                rating: 4
+                comment: Good session, a bit short on time.
+        responses:
+          '200':
+            description: Updated feedback
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Feedback'
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+      delete:
+        tags: [Feedback]
+        summary: Delete feedback
+        description: The writer or an admin can delete it.
+        responses:
+          '204':
+            description: Feedback deleted
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+    /tutors/{tutorId}/hours:
+      parameters:
+        - name: tutorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      get:
+        tags: [Hours]
+        summary: Get volunteer hours of a tutor
+        description: Adds up the duration of completed sessions. Can be limited to a date range or to one organization.
+        parameters:
+          - name: from
+            in: query
+            schema:
+              type: string
+              format: date
+          - name: to
+            in: query
+            schema:
+              type: string
+              format: date
+          - name: organizationId
+            in: query
+            schema:
+              type: integer
+        responses:
+          '200':
+            description: Volunteer hours
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/VolunteerHours'
+                example:
+                  tutorId: 21
+                  totalHours: 12.5
+                  sessionsCompleted: 9
+                  averageRating: 4.8
+                  entries:
+                    - sessionId: 88
+                      date: '2026-11-06'
+                      subject: Automata Theory
+                      hours: 1
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '401':
+            $ref: '#/components/responses/Unauthorized'
+          '404':
+            $ref: '#/components/responses/NotFound'
+  components:
+    securitySchemes:
+      bearerAuth:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
     parameters:
-      - name: subjectId
+      UserId:
+        name: userId
         in: path
         required: true
         schema:
           type: integer
-    delete:
-      tags: [Tutor Subjects]
-      summary: Remove a subject from a tutor profile
-      responses:
-        '204':
-          description: Subject removed
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /requests:
-    get:
-      tags: [Requests]
-      summary: List help requests
-      description: Tutors and instructors browse requests here. Use the panel and organizationId filters to show only what belongs to a given panel.
-      parameters:
-        - name: subject
-          in: query
-          schema:
+      OrgId:
+        name: orgId
+        in: path
+        required: true
+        schema:
+          type: integer
+      RequestId:
+        name: requestId
+        in: path
+        required: true
+        schema:
+          type: integer
+      SessionId:
+        name: sessionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      FeedbackId:
+        name: feedbackId
+        in: path
+        required: true
+        schema:
+          type: integer
+      Page:
+        name: page
+        in: query
+        description: Page number, starting at 1
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      Limit:
+        name: limit
+        in: query
+        description: Items per page
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+    responses:
+      BadRequest:
+        description: The request body or parameters are invalid
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+            example:
+              error: bad_request
+              message: subject is required
+      Unauthorized:
+        description: Missing, invalid, or expired token
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+            example:
+              error: unauthorized
+              message: Login required
+      Forbidden:
+        description: The user's role or ownership does not allow this action
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+            example:
+              error: forbidden
+              message: You cannot modify this resource
+      NotFound:
+        description: The resource does not exist
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+            example:
+              error: not_found
+              message: Resource not found
+      Conflict:
+        description: The action conflicts with the current state of the resource
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+            example:
+              error: conflict
+              message: This session is already completed
+    schemas:
+      Error:
+        type: object
+        required: [error, message]
+        properties:
+          error:
             type: string
-        - name: yearLevel
-          in: query
-          schema:
+          message:
+            type: string
+      Role:
+        type: string
+        enum: [student, tutor, instructor, org_officer, admin]
+      Panel:
+        type: string
+        description: Which tutoring panel a request or session belongs to
+        enum: [peer, instructor, organization]
+      Mode:
+        type: string
+        enum: [online, in_person]
+      OrganizationType:
+        type: string
+        enum: [student_org, department, instructor_group]
+      RequestStatus:
+        type: string
+        enum: [open, matched, completed, cancelled]
+      SessionStatus:
+        type: string
+        enum: [offered, accepted, completed, cancelled]
+      RegisterInput:
+        type: object
+        required: [name, email, password]
+        properties:
+          name:
+            type: string
+            minLength: 2
+          email:
+            type: string
+            format: email
+            description: Must be an XU school email
+          password:
+            type: string
+            format: password
+            minLength: 8
+          role:
+            type: string
+            enum: [student, tutor, instructor]
+            default: student
+          course:
+            type: string
+          yearLevel:
             type: integer
             minimum: 1
             maximum: 5
-        - name: status
-          in: query
-          schema:
-            $ref: '#/components/schemas/RequestStatus'
-        - name: panel
-          in: query
-          schema:
-            $ref: '#/components/schemas/Panel'
-        - name: organizationId
-          in: query
-          schema:
-            type: integer
-        - name: studentId
-          in: query
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Limit'
-      responses:
-        '200':
-          description: List of help requests
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/HelpRequest'
-                  page:
-                    type: integer
-                  total:
-                    type: integer
-              example:
-                data:
-                  - id: 40
-                    studentId: 12
-                    subject: Automata Theory
-                    topic: Converting NFA to DFA
-                    preferredSchedule: Weekdays after 3 PM
-                    mode: in_person
-                    panel: peer
-                    organizationId: null
-                    status: open
-                    createdAt: '2026-11-03T10:00:00Z'
-                page: 1
-                total: 1
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-    post:
-      tags: [Requests]
-      summary: Post a help request
-      description: Students post a request for one of the three panels. Organization requests need an organizationId.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/HelpRequestInput'
-            example:
-              subject: Automata Theory
-              topic: Converting NFA to DFA
-              preferredSchedule: Weekdays after 3 PM
-              mode: in_person
-              panel: peer
-      responses:
-        '201':
-          description: Request created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HelpRequest'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-  /requests/{requestId}:
-    parameters:
-      - $ref: '#/components/parameters/RequestId'
-    get:
-      tags: [Requests]
-      summary: Get a help request
-      responses:
-        '200':
-          description: The help request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HelpRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    put:
-      tags: [Requests]
-      summary: Edit a help request
-      description: Only the student who posted it can edit, and only while it is still open.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/HelpRequestInput'
-      responses:
-        '200':
-          description: Updated request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HelpRequest'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-    delete:
-      tags: [Requests]
-      summary: Delete a help request
-      description: The student who posted it or an admin can delete it.
-      responses:
-        '204':
-          description: Request deleted
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /sessions:
-    get:
-      tags: [Sessions]
-      summary: List sessions
-      parameters:
-        - name: requestId
-          in: query
-          schema:
-            type: integer
-        - name: tutorId
-          in: query
-          schema:
-            type: integer
-        - name: status
-          in: query
-          schema:
-            $ref: '#/components/schemas/SessionStatus'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Limit'
-      responses:
-        '200':
-          description: List of sessions
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Session'
-                  page:
-                    type: integer
-                  total:
-                    type: integer
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-    post:
-      tags: [Sessions]
-      summary: Offer a session time for a request
-      description: A tutor or instructor offers a time for an open request. The student is notified.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SessionOfferInput'
-            example:
-              requestId: 40
-              startTime: '2026-11-06T15:30:00+08:00'
-              durationMinutes: 60
-              mode: in_person
-              place: Library, 2nd floor study area
-      responses:
-        '201':
-          description: Offer created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Session'
-              example:
-                id: 88
-                requestId: 40
-                tutorId: 21
-                startTime: '2026-11-06T15:30:00+08:00'
-                durationMinutes: 60
-                mode: in_person
-                place: Library, 2nd floor study area
-                meetingLink: null
-                status: offered
-                studentConfirmed: false
-                tutorConfirmed: false
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-  /sessions/{sessionId}:
-    parameters:
-      - $ref: '#/components/parameters/SessionId'
-    get:
-      tags: [Sessions]
-      summary: Get a session
-      responses:
-        '200':
-          description: The session
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Session'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    put:
-      tags: [Sessions]
-      summary: Reschedule or edit a session
-      description: The tutor can edit an offer. For a booked session, either side can propose a new time and the other side has to accept again.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SessionUpdate'
-            example:
-              startTime: '2026-11-07T14:00:00+08:00'
-              durationMinutes: 90
-              mode: online
-              meetingLink: https://meet.jit.si/magistutor-session-88
-      responses:
-        '200':
-          description: Updated session
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Session'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-    delete:
-      tags: [Sessions]
-      summary: Cancel a session
-      description: Either side can cancel a session that is not yet completed.
-      responses:
-        '204':
-          description: Session cancelled
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-  /sessions/{sessionId}/accept:
-    parameters:
-      - $ref: '#/components/parameters/SessionId'
-    patch:
-      tags: [Sessions]
-      summary: Accept an offered session
-      description: The student who posted the request accepts one offer. Other offers for the same request are cancelled and the request becomes matched.
-      responses:
-        '200':
-          description: Session accepted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Session'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-  /sessions/{sessionId}/confirm:
-    parameters:
-      - $ref: '#/components/parameters/SessionId'
-    patch:
-      tags: [Sessions]
-      summary: Confirm that a session was done
-      description: Called once by the student and once by the tutor. When both have confirmed, the session becomes completed and its duration is added to the tutor's volunteer hours.
-      responses:
-        '200':
-          description: Confirmation saved
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Session'
-              example:
-                id: 88
-                requestId: 40
-                tutorId: 21
-                startTime: '2026-11-06T15:30:00+08:00'
-                durationMinutes: 60
-                mode: in_person
-                place: Library, 2nd floor study area
-                meetingLink: null
-                status: completed
-                studentConfirmed: true
-                tutorConfirmed: true
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-  /feedback:
-    get:
-      tags: [Feedback]
-      summary: List feedback
-      parameters:
-        - name: sessionId
-          in: query
-          schema:
-            type: integer
-        - name: tutorId
-          in: query
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: List of feedback
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Feedback'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-    post:
-      tags: [Feedback]
-      summary: Leave feedback for a completed session
-      description: The student rates the tutor after the session is completed. One feedback per session per rater.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FeedbackInput'
-            example:
-              sessionId: 88
-              rating: 5
-              comment: Explained the steps clearly and was patient with my questions.
-      responses:
-        '201':
-          description: Feedback saved
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Feedback'
-              example:
-                id: 15
-                sessionId: 88
-                raterId: 12
-                rating: 5
-                comment: Explained the steps clearly and was patient with my questions.
-                createdAt: '2026-11-06T17:00:00Z'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-  /feedback/{feedbackId}:
-    parameters:
-      - $ref: '#/components/parameters/FeedbackId'
-    get:
-      tags: [Feedback]
-      summary: Get one feedback entry
-      responses:
-        '200':
-          description: The feedback
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Feedback'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    put:
-      tags: [Feedback]
-      summary: Edit feedback
-      description: Only the person who wrote it can edit.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FeedbackUpdate'
-            example:
-              rating: 4
-              comment: Good session, a bit short on time.
-      responses:
-        '200':
-          description: Updated feedback
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Feedback'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    delete:
-      tags: [Feedback]
-      summary: Delete feedback
-      description: The writer or an admin can delete it.
-      responses:
-        '204':
-          description: Feedback deleted
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /tutors/{tutorId}/hours:
-    parameters:
-      - name: tutorId
-        in: path
-        required: true
-        schema:
-          type: integer
-    get:
-      tags: [Hours]
-      summary: Get volunteer hours of a tutor
-      description: Adds up the duration of completed sessions. Can be limited to a date range or to one organization.
-      parameters:
-        - name: from
-          in: query
-          schema:
+      LoginInput:
+        type: object
+        required: [email, password]
+        properties:
+          email:
             type: string
-            format: date
-        - name: to
-          in: query
-          schema:
+            format: email
+          password:
             type: string
-            format: date
-        - name: organizationId
-          in: query
-          schema:
+            format: password
+      AuthToken:
+        type: object
+        properties:
+          accessToken:
+            type: string
+          tokenType:
+            type: string
+          expiresIn:
             type: integer
-      responses:
-        '200':
-          description: Volunteer hours
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VolunteerHours'
-              example:
-                tutorId: 21
-                totalHours: 12.5
-                sessionsCompleted: 9
-                averageRating: 4.8
-                entries:
-                  - sessionId: 88
-                    date: '2026-11-06'
-                    subject: Automata Theory
-                    hours: 1
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-  parameters:
-    UserId:
-      name: userId
-      in: path
-      required: true
-      schema:
-        type: integer
-    OrgId:
-      name: orgId
-      in: path
-      required: true
-      schema:
-        type: integer
-    RequestId:
-      name: requestId
-      in: path
-      required: true
-      schema:
-        type: integer
-    SessionId:
-      name: sessionId
-      in: path
-      required: true
-      schema:
-        type: integer
-    FeedbackId:
-      name: feedbackId
-      in: path
-      required: true
-      schema:
-        type: integer
-    Page:
-      name: page
-      in: query
-      description: Page number, starting at 1
-      schema:
-        type: integer
-        minimum: 1
-        default: 1
-    Limit:
-      name: limit
-      in: query
-      description: Items per page
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 20
-  responses:
-    BadRequest:
-      description: The request body or parameters are invalid
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: bad_request
-            message: subject is required
-    Unauthorized:
-      description: Missing, invalid, or expired token
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: unauthorized
-            message: Login required
-    Forbidden:
-      description: The user's role or ownership does not allow this action
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: forbidden
-            message: You cannot modify this resource
-    NotFound:
-      description: The resource does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: not_found
-            message: Resource not found
-    Conflict:
-      description: The action conflicts with the current state of the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: conflict
-            message: This session is already completed
-  schemas:
-    Error:
-      type: object
-      required: [error, message]
-      properties:
-        error:
-          type: string
-        message:
-          type: string
-    Role:
-      type: string
-      enum: [student, tutor, instructor, org_officer, admin]
-    Panel:
-      type: string
-      description: Which tutoring panel a request or session belongs to
-      enum: [peer, instructor, organization]
-    Mode:
-      type: string
-      enum: [online, in_person]
-    OrganizationType:
-      type: string
-      enum: [student_org, department, instructor_group]
-    RequestStatus:
-      type: string
-      enum: [open, matched, completed, cancelled]
-    SessionStatus:
-      type: string
-      enum: [offered, accepted, completed, cancelled]
-    RegisterInput:
-      type: object
-      required: [name, email, password]
-      properties:
-        name:
-          type: string
-          minLength: 2
-        email:
-          type: string
-          format: email
-          description: Must be an XU school email
-        password:
-          type: string
-          format: password
-          minLength: 8
-        role:
-          type: string
-          enum: [student, tutor, instructor]
-          default: student
-        course:
-          type: string
-        yearLevel:
-          type: integer
-          minimum: 1
-          maximum: 5
-    LoginInput:
-      type: object
-      required: [email, password]
-      properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
-    AuthToken:
-      type: object
-      properties:
-        accessToken:
-          type: string
-        tokenType:
-          type: string
-        expiresIn:
-          type: integer
-          description: Seconds until the token expires
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-        email:
-          type: string
-          format: email
-        role:
-          $ref: '#/components/schemas/Role'
-        course:
-          type: string
-        yearLevel:
-          type: integer
-        createdAt:
-          type: string
-          format: date-time
-          readOnly: true
-    UserUpdate:
-      type: object
-      properties:
-        name:
-          type: string
-        course:
-          type: string
-        yearLevel:
-          type: integer
-          minimum: 1
-          maximum: 5
-        role:
-          $ref: '#/components/schemas/Role'
-    OrganizationInput:
-      type: object
-      required: [name, type]
-      properties:
-        name:
-          type: string
-        type:
-          $ref: '#/components/schemas/OrganizationType'
-        description:
-          type: string
-    Organization:
-      allOf:
-        - $ref: '#/components/schemas/OrganizationInput'
-        - type: object
-          properties:
-            id:
-              type: integer
-              readOnly: true
-            createdAt:
-              type: string
-              format: date-time
-              readOnly: true
-    MemberInput:
-      type: object
-      required: [userId, memberRole]
-      properties:
-        userId:
-          type: integer
-        memberRole:
-          type: string
-          enum: [officer, tutor, member]
-    OrganizationMember:
-      type: object
-      properties:
-        userId:
-          type: integer
-        name:
-          type: string
-        memberRole:
-          type: string
-          enum: [officer, tutor, member]
-        joinedAt:
-          type: string
-          format: date-time
-    OrganizationSummary:
-      type: object
-      properties:
-        organizationId:
-          type: integer
-        openRequests:
-          type: integer
-        completedSessions:
-          type: integer
-        totalVolunteerHours:
-          type: number
-        activeTutors:
-          type: integer
-        averageRating:
-          type: number
-    TutorSubjectInput:
-      type: object
-      required: [subject]
-      properties:
-        subject:
-          type: string
-    TutorSubject:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        tutorId:
-          type: integer
-        subject:
-          type: string
-    HelpRequestInput:
-      type: object
-      required: [subject, topic, preferredSchedule, mode, panel]
-      properties:
-        subject:
-          type: string
-        topic:
-          type: string
-        preferredSchedule:
-          type: string
-        mode:
-          $ref: '#/components/schemas/Mode'
-        panel:
-          $ref: '#/components/schemas/Panel'
-        organizationId:
-          type: integer
-          nullable: true
-          description: Required when panel is organization
-    HelpRequest:
-      allOf:
-        - $ref: '#/components/schemas/HelpRequestInput'
-        - type: object
-          properties:
-            id:
-              type: integer
-              readOnly: true
-            studentId:
-              type: integer
-            status:
-              $ref: '#/components/schemas/RequestStatus'
-            createdAt:
-              type: string
-              format: date-time
-              readOnly: true
-    SessionOfferInput:
-      type: object
-      required: [requestId, startTime, durationMinutes, mode]
-      properties:
-        requestId:
-          type: integer
-        startTime:
-          type: string
-          format: date-time
-        durationMinutes:
-          type: integer
-          minimum: 15
-          maximum: 240
-        mode:
-          $ref: '#/components/schemas/Mode'
-        place:
-          type: string
-          description: Public campus place, used when mode is in_person
-        meetingLink:
-          type: string
-          format: uri
-          description: Video room link, used when mode is online
-    SessionUpdate:
-      type: object
-      properties:
-        startTime:
-          type: string
-          format: date-time
-        durationMinutes:
-          type: integer
-          minimum: 15
-          maximum: 240
-        mode:
-          $ref: '#/components/schemas/Mode'
-        place:
-          type: string
-        meetingLink:
-          type: string
-          format: uri
-    Session:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        requestId:
-          type: integer
-        tutorId:
-          type: integer
-        startTime:
-          type: string
-          format: date-time
-        durationMinutes:
-          type: integer
-        mode:
-          $ref: '#/components/schemas/Mode'
-        place:
-          type: string
-          nullable: true
-        meetingLink:
-          type: string
-          nullable: true
-        status:
-          $ref: '#/components/schemas/SessionStatus'
-        studentConfirmed:
-          type: boolean
-        tutorConfirmed:
-          type: boolean
-    FeedbackInput:
-      type: object
-      required: [sessionId, rating]
-      properties:
-        sessionId:
-          type: integer
-        rating:
-          type: integer
-          minimum: 1
-          maximum: 5
-        comment:
-          type: string
-          maxLength: 500
-    FeedbackUpdate:
-      type: object
-      properties:
-        rating:
-          type: integer
-          minimum: 1
-          maximum: 5
-        comment:
-          type: string
-          maxLength: 500
-    Feedback:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        sessionId:
-          type: integer
-        raterId:
-          type: integer
-        rating:
-          type: integer
-        comment:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-          readOnly: true
-    VolunteerHours:
-      type: object
-      properties:
-        tutorId:
-          type: integer
-        totalHours:
-          type: number
-        sessionsCompleted:
-          type: integer
-        averageRating:
-          type: number
-        entries:
-          type: array
-          items:
-            type: object
+            description: Seconds until the token expires
+      User:
+        type: object
+        properties:
+          id:
+            type: integer
+            readOnly: true
+          name:
+            type: string
+          email:
+            type: string
+            format: email
+          role:
+            $ref: '#/components/schemas/Role'
+          course:
+            type: string
+          yearLevel:
+            type: integer
+          createdAt:
+            type: string
+            format: date-time
+            readOnly: true
+      UserUpdate:
+        type: object
+        properties:
+          name:
+            type: string
+          course:
+            type: string
+          yearLevel:
+            type: integer
+            minimum: 1
+            maximum: 5
+          role:
+            $ref: '#/components/schemas/Role'
+      OrganizationInput:
+        type: object
+        required: [name, type]
+        properties:
+          name:
+            type: string
+          type:
+            $ref: '#/components/schemas/OrganizationType'
+          description:
+            type: string
+      Organization:
+        allOf:
+          - $ref: '#/components/schemas/OrganizationInput'
+          - type: object
             properties:
-              sessionId:
+              id:
                 type: integer
-              date:
+                readOnly: true
+              createdAt:
                 type: string
-                format: date
-              subject:
+                format: date-time
+                readOnly: true
+      MemberInput:
+        type: object
+        required: [userId, memberRole]
+        properties:
+          userId:
+            type: integer
+          memberRole:
+            type: string
+            enum: [officer, tutor, member]
+      OrganizationMember:
+        type: object
+        properties:
+          userId:
+            type: integer
+          name:
+            type: string
+          memberRole:
+            type: string
+            enum: [officer, tutor, member]
+          joinedAt:
+            type: string
+            format: date-time
+      OrganizationSummary:
+        type: object
+        properties:
+          organizationId:
+            type: integer
+          openRequests:
+            type: integer
+          completedSessions:
+            type: integer
+          totalVolunteerHours:
+            type: number
+          activeTutors:
+            type: integer
+          averageRating:
+            type: number
+      TutorSubjectInput:
+        type: object
+        required: [subject]
+        properties:
+          subject:
+            type: string
+      TutorSubject:
+        type: object
+        properties:
+          id:
+            type: integer
+            readOnly: true
+          tutorId:
+            type: integer
+          subject:
+            type: string
+      HelpRequestInput:
+        type: object
+        required: [subject, topic, preferredSchedule, mode, panel]
+        properties:
+          subject:
+            type: string
+          topic:
+            type: string
+          preferredSchedule:
+            type: string
+          mode:
+            $ref: '#/components/schemas/Mode'
+          panel:
+            $ref: '#/components/schemas/Panel'
+          organizationId:
+            type: integer
+            nullable: true
+            description: Required when panel is organization
+      HelpRequest:
+        allOf:
+          - $ref: '#/components/schemas/HelpRequestInput'
+          - type: object
+            properties:
+              id:
+                type: integer
+                readOnly: true
+              studentId:
+                type: integer
+              status:
+                $ref: '#/components/schemas/RequestStatus'
+              createdAt:
                 type: string
-              hours:
-                type: number
+                format: date-time
+                readOnly: true
+
+      SessionOfferInput:
+        type: object
+        required: [requestId, startTime, durationMinutes, mode]
+        properties:
+          requestId:
+            type: integer
+            description: The help request this offer answers
+          startTime:
+            type: string
+            format: date-time
+            description: When the session starts
+          durationMinutes:
+            type: integer
+            minimum: 15
+            maximum: 240
+            description: Planned length of the session
+          mode:
+            $ref: '#/components/schemas/Mode'
+          place:
+            type: string
+            description: A public campus spot, used when mode is in_person
+          meetingLink:
+            type: string
+            format: uri
+            description: Video room link, used when mode is online
+      SessionUpdate:
+        type: object
+        description: Send only the fields that should change
+        properties:
+          startTime:
+            type: string
+            format: date-time
+          durationMinutes:
+            type: integer
+            minimum: 15
+            maximum: 240
+          mode:
+            $ref: '#/components/schemas/Mode'
+          place:
+            type: string
+          meetingLink:
+            type: string
+            format: uri
+      Session:
+        type: object
+        required: [id, requestId, tutorId, startTime, durationMinutes, mode, status]
+        properties:
+          id:
+            type: integer
+            readOnly: true
+          requestId:
+            type: integer
+            description: The help request this session belongs to
+          tutorId:
+            type: integer
+            description: The tutor or instructor who offered the session
+          startTime:
+            type: string
+            format: date-time
+          durationMinutes:
+            type: integer
+          mode:
+            $ref: '#/components/schemas/Mode'
+          place:
+            type: string
+            nullable: true
+            description: Filled in for in-person sessions
+          meetingLink:
+            type: string
+            nullable: true
+            description: Filled in for online sessions
+          status:
+            $ref: '#/components/schemas/SessionStatus'
+          studentConfirmed:
+            type: boolean
+            description: True once the student confirms the session happened
+          tutorConfirmed:
+            type: boolean
+            description: True once the tutor confirms the session happened
+      FeedbackInput:
+        type: object
+        required: [sessionId, rating]
+        properties:
+          sessionId:
+            type: integer
+            description: The completed session being rated
+          rating:
+            type: integer
+            minimum: 1
+            maximum: 5
+            description: Score from 1 (poor) to 5 (excellent)
+          comment:
+            type: string
+            maxLength: 500
+            description: Optional written comment
+      FeedbackUpdate:
+        type: object
+        description: Send only the fields that should change
+        properties:
+          rating:
+            type: integer
+            minimum: 1
+            maximum: 5
+          comment:
+            type: string
+            maxLength: 500
+      Feedback:
+        type: object
+        required: [id, sessionId, raterId, rating]
+        properties:
+          id:
+            type: integer
+            readOnly: true
+          sessionId:
+            type: integer
+          raterId:
+            type: integer
+            description: The user who wrote the feedback
+          rating:
+            type: integer
+            minimum: 1
+            maximum: 5
+          comment:
+            type: string
+            maxLength: 500
+          createdAt:
+            type: string
+            format: date-time
+            readOnly: true
+      VolunteerHours:
+        type: object
+        properties:
+          tutorId:
+            type: integer
+          totalHours:
+            type: number
+          sessionsCompleted:
+            type: integer
+          averageRating:
+            type: number
+          entries:
+            type: array
+            items:
+              type: object
+              properties:
+                sessionId:
+                  type: integer
+                date:
+                  type: string
+                  format: date
+                subject:
+                  type: string
+                hours:
+                  type: number
